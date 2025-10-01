@@ -85,7 +85,8 @@ class CrosshairOverlay:
         self.overlay_window.title("Crosshair Overlay")
         
         # Make window transparent and always on top
-        self.overlay_window.attributes('-alpha', float(self.config.get('crosshair', 'opacity')))
+        opacity = float(self.config.get('crosshair', 'opacity'))
+        self.overlay_window.attributes('-alpha', opacity)
         self.overlay_window.attributes('-topmost', True)
         self.overlay_window.overrideredirect(True)  # Remove window decorations
         
@@ -298,7 +299,9 @@ class CrosshairOverlay:
         # Inner length
         ttk.Label(frame, text="Length:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.vars['inner_length'] = tk.IntVar(value=int(self.config.get('crosshair', 'inner_length')))
-        ttk.Scale(frame, from_=1, to=50, variable=self.vars['inner_length'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        inner_length_scale = ttk.Scale(frame, from_=1, to=50, variable=self.vars['inner_length'], orient=tk.HORIZONTAL, length=200)
+        inner_length_scale.configure(command=lambda val: self.vars['inner_length'].set(int(float(val))))
+        inner_length_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['inner_length'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['inner_length'].trace_add('write', update_settings)
         row += 1
@@ -306,7 +309,9 @@ class CrosshairOverlay:
         # Inner thickness
         ttk.Label(frame, text="Thickness:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.vars['inner_thickness'] = tk.IntVar(value=int(self.config.get('crosshair', 'inner_thickness')))
-        ttk.Scale(frame, from_=1, to=10, variable=self.vars['inner_thickness'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        inner_thickness_scale = ttk.Scale(frame, from_=1, to=10, variable=self.vars['inner_thickness'], orient=tk.HORIZONTAL, length=200)
+        inner_thickness_scale.configure(command=lambda val: self.vars['inner_thickness'].set(int(float(val))))
+        inner_thickness_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['inner_thickness'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['inner_thickness'].trace_add('write', update_settings)
         row += 1
@@ -314,7 +319,9 @@ class CrosshairOverlay:
         # Inner offset
         ttk.Label(frame, text="Offset:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.vars['inner_offset'] = tk.IntVar(value=int(self.config.get('crosshair', 'inner_offset')))
-        ttk.Scale(frame, from_=0, to=20, variable=self.vars['inner_offset'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        inner_offset_scale = ttk.Scale(frame, from_=0, to=20, variable=self.vars['inner_offset'], orient=tk.HORIZONTAL, length=200)
+        inner_offset_scale.configure(command=lambda val: self.vars['inner_offset'].set(int(float(val))))
+        inner_offset_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['inner_offset'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['inner_offset'].trace_add('write', update_settings)
         row += 1
@@ -326,19 +333,25 @@ class CrosshairOverlay:
         self.vars['inner_blue'] = tk.IntVar(value=b)
         
         ttk.Label(frame, text="Red:").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Scale(frame, from_=0, to=255, variable=self.vars['inner_red'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        inner_red_scale = ttk.Scale(frame, from_=0, to=255, variable=self.vars['inner_red'], orient=tk.HORIZONTAL, length=200)
+        inner_red_scale.configure(command=lambda val: self.vars['inner_red'].set(int(float(val))))
+        inner_red_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['inner_red'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['inner_red'].trace_add('write', lambda *args: self.update_color_and_settings('inner_color', update_settings))
         row += 1
         
         ttk.Label(frame, text="Green:").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Scale(frame, from_=0, to=255, variable=self.vars['inner_green'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        inner_green_scale = ttk.Scale(frame, from_=0, to=255, variable=self.vars['inner_green'], orient=tk.HORIZONTAL, length=200)
+        inner_green_scale.configure(command=lambda val: self.vars['inner_green'].set(int(float(val))))
+        inner_green_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['inner_green'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['inner_green'].trace_add('write', lambda *args: self.update_color_and_settings('inner_color', update_settings))
         row += 1
         
         ttk.Label(frame, text="Blue:").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Scale(frame, from_=0, to=255, variable=self.vars['inner_blue'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        inner_blue_scale = ttk.Scale(frame, from_=0, to=255, variable=self.vars['inner_blue'], orient=tk.HORIZONTAL, length=200)
+        inner_blue_scale.configure(command=lambda val: self.vars['inner_blue'].set(int(float(val))))
+        inner_blue_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['inner_blue'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['inner_blue'].trace_add('write', lambda *args: self.update_color_and_settings('inner_color', update_settings))
         row += 1
@@ -362,7 +375,9 @@ class CrosshairOverlay:
         # Outer length
         ttk.Label(frame, text="Length:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.vars['outer_length'] = tk.IntVar(value=int(self.config.get('crosshair', 'outer_length')))
-        ttk.Scale(frame, from_=1, to=50, variable=self.vars['outer_length'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        outer_length_scale = ttk.Scale(frame, from_=1, to=50, variable=self.vars['outer_length'], orient=tk.HORIZONTAL, length=200)
+        outer_length_scale.configure(command=lambda val: self.vars['outer_length'].set(int(float(val))))
+        outer_length_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['outer_length'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['outer_length'].trace_add('write', update_settings)
         row += 1
@@ -370,7 +385,9 @@ class CrosshairOverlay:
         # Outer thickness
         ttk.Label(frame, text="Thickness:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.vars['outer_thickness'] = tk.IntVar(value=int(self.config.get('crosshair', 'outer_thickness')))
-        ttk.Scale(frame, from_=1, to=10, variable=self.vars['outer_thickness'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        outer_thickness_scale = ttk.Scale(frame, from_=1, to=10, variable=self.vars['outer_thickness'], orient=tk.HORIZONTAL, length=200)
+        outer_thickness_scale.configure(command=lambda val: self.vars['outer_thickness'].set(int(float(val))))
+        outer_thickness_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['outer_thickness'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['outer_thickness'].trace_add('write', update_settings)
         row += 1
@@ -378,7 +395,9 @@ class CrosshairOverlay:
         # Outer offset
         ttk.Label(frame, text="Offset:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.vars['outer_offset'] = tk.IntVar(value=int(self.config.get('crosshair', 'outer_offset')))
-        ttk.Scale(frame, from_=0, to=30, variable=self.vars['outer_offset'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        outer_offset_scale = ttk.Scale(frame, from_=0, to=30, variable=self.vars['outer_offset'], orient=tk.HORIZONTAL, length=200)
+        outer_offset_scale.configure(command=lambda val: self.vars['outer_offset'].set(int(float(val))))
+        outer_offset_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['outer_offset'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['outer_offset'].trace_add('write', update_settings)
         row += 1
@@ -390,19 +409,25 @@ class CrosshairOverlay:
         self.vars['outer_blue'] = tk.IntVar(value=b)
         
         ttk.Label(frame, text="Red:").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Scale(frame, from_=0, to=255, variable=self.vars['outer_red'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        outer_red_scale = ttk.Scale(frame, from_=0, to=255, variable=self.vars['outer_red'], orient=tk.HORIZONTAL, length=200)
+        outer_red_scale.configure(command=lambda val: self.vars['outer_red'].set(int(float(val))))
+        outer_red_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['outer_red'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['outer_red'].trace_add('write', lambda *args: self.update_color_and_settings('outer_color', update_settings))
         row += 1
         
         ttk.Label(frame, text="Green:").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Scale(frame, from_=0, to=255, variable=self.vars['outer_green'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        outer_green_scale = ttk.Scale(frame, from_=0, to=255, variable=self.vars['outer_green'], orient=tk.HORIZONTAL, length=200)
+        outer_green_scale.configure(command=lambda val: self.vars['outer_green'].set(int(float(val))))
+        outer_green_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['outer_green'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['outer_green'].trace_add('write', lambda *args: self.update_color_and_settings('outer_color', update_settings))
         row += 1
         
         ttk.Label(frame, text="Blue:").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Scale(frame, from_=0, to=255, variable=self.vars['outer_blue'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        outer_blue_scale = ttk.Scale(frame, from_=0, to=255, variable=self.vars['outer_blue'], orient=tk.HORIZONTAL, length=200)
+        outer_blue_scale.configure(command=lambda val: self.vars['outer_blue'].set(int(float(val))))
+        outer_blue_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['outer_blue'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['outer_blue'].trace_add('write', lambda *args: self.update_color_and_settings('outer_color', update_settings))
         row += 1
@@ -420,7 +445,9 @@ class CrosshairOverlay:
         # Center dot size
         ttk.Label(frame, text="Size:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.vars['center_dot_size'] = tk.IntVar(value=int(self.config.get('crosshair', 'center_dot_size')))
-        ttk.Scale(frame, from_=1, to=10, variable=self.vars['center_dot_size'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        dot_size_scale = ttk.Scale(frame, from_=1, to=10, variable=self.vars['center_dot_size'], orient=tk.HORIZONTAL, length=200)
+        dot_size_scale.configure(command=lambda val: self.vars['center_dot_size'].set(int(float(val))))
+        dot_size_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['center_dot_size'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['center_dot_size'].trace_add('write', update_settings)
         row += 1
@@ -430,9 +457,10 @@ class CrosshairOverlay:
         row += 1
         
         # Opacity
-        ttk.Label(frame, text="Opacity:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Label(frame, text="Opacity (%):").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.vars['opacity'] = tk.IntVar(value=int(float(self.config.get('crosshair', 'opacity')) * 100))
-        ttk.Scale(frame, from_=10, to=100, variable=self.vars['opacity'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        opacity_scale = ttk.Scale(frame, from_=10, to=100, variable=self.vars['opacity'], orient=tk.HORIZONTAL, length=200)
+        opacity_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['opacity'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['opacity'].trace_add('write', lambda *args: self.update_opacity_and_settings(update_settings))
         row += 1
@@ -479,8 +507,8 @@ Advanced Crosshair Controls:
     def update_opacity_and_settings(self, update_callback):
         """Update opacity and trigger settings update"""
         try:
-            opacity_val = self.vars['opacity'].get() / 100
-            self.config.set('crosshair', 'opacity', str(opacity_val))
+            opacity_val = self.vars['opacity'].get() / 100.0
+            self.config.set('crosshair', 'opacity', f"{opacity_val:.2f}")
             self.save_config()
             if self.overlay_window:
                 self.overlay_window.attributes('-alpha', opacity_val)
