@@ -458,8 +458,11 @@ class CrosshairOverlay:
         
         # Opacity
         ttk.Label(frame, text="Opacity (%):").grid(row=row, column=0, sticky=tk.W, pady=2)
-        self.vars['opacity'] = tk.IntVar(value=int(float(self.config.get('crosshair', 'opacity')) * 100))
-        opacity_scale = ttk.Scale(frame, from_=10, to=100, variable=self.vars['opacity'], orient=tk.HORIZONTAL, length=200)
+        opacity_config_val = float(self.config.get('crosshair', 'opacity'))
+        opacity_percent = max(0, min(100, int(opacity_config_val * 100)))  # Clamp between 0-100
+        self.vars['opacity'] = tk.IntVar(value=opacity_percent)
+        opacity_scale = ttk.Scale(frame, from_=0, to=100, variable=self.vars['opacity'], orient=tk.HORIZONTAL, length=200)
+        opacity_scale.configure(command=lambda val: self.vars['opacity'].set(int(float(val))))
         opacity_scale.grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
         ttk.Entry(frame, textvariable=self.vars['opacity'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
         self.vars['opacity'].trace_add('write', lambda *args: self.update_opacity_and_settings(update_settings))
@@ -474,18 +477,7 @@ class CrosshairOverlay:
         row += 1
         
         ttk.Button(button_frame, text="Toggle Crosshair", command=self.toggle_visibility).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Exit", command=self.quit_app).pack(side=tk.LEFT, padx=5)
-        
-        # Instructions
-        instructions = """
-Advanced Crosshair Controls:
-• Inner/Outer Lines: Independent control with length, thickness, offset
-• Outlines: Black borders around lines for visibility
-• Center Dot: Optional dot at crosshair center
-• RGB Colors: 0-255 values for precise color control
-• Settings apply instantly as you adjust
-        """
-        ttk.Label(frame, text=instructions, justify=tk.LEFT).grid(row=row, column=0, columnspan=3, pady=10)
+        ttk.Label(frame, justify=tk.LEFT).grid(row=row, column=0, columnspan=3, pady=10)
         
         self.root.protocol("WM_DELETE_WINDOW", self.quit_app)
         self.root.mainloop()
@@ -507,7 +499,7 @@ Advanced Crosshair Controls:
     def update_opacity_and_settings(self, update_callback):
         """Update opacity and trigger settings update"""
         try:
-            opacity_val = self.vars['opacity'].get() / 100.0
+            opacity_val = max(0.01, self.vars['opacity'].get() / 100.0)  # Minimum 1% to keep window visible
             self.config.set('crosshair', 'opacity', f"{opacity_val:.2f}")
             self.save_config()
             if self.overlay_window:
