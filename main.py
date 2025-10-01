@@ -32,10 +32,35 @@ class CrosshairOverlay:
             
         # Set defaults if not present
         defaults = {
-            'size': '20',
-            'thickness': '2',
-            'color': '#FF0000',
-            'style': 'cross',
+            # Inner lines
+            'inner_enabled': 'True',
+            'inner_length': '15',
+            'inner_thickness': '2',
+            'inner_offset': '3',
+            'inner_color': '#FF0000',
+            'inner_outline_enabled': 'True',
+            'inner_outline_thickness': '1',
+            'inner_outline_color': '#000000',
+            
+            # Outer lines
+            'outer_enabled': 'True',
+            'outer_length': '25',
+            'outer_thickness': '2',
+            'outer_offset': '8',
+            'outer_color': '#FF0000',
+            'outer_outline_enabled': 'True',
+            'outer_outline_thickness': '1',
+            'outer_outline_color': '#000000',
+            
+            # Center dot
+            'center_dot_enabled': 'False',
+            'center_dot_size': '3',
+            'center_dot_color': '#FF0000',
+            'center_dot_outline_enabled': 'True',
+            'center_dot_outline_thickness': '1',
+            'center_dot_outline_color': '#000000',
+            
+            # General
             'opacity': '0.8',
             'hotkey_toggle': 'F1'
         }
@@ -90,43 +115,101 @@ class CrosshairOverlay:
         self.draw_crosshair()
     
     def draw_crosshair(self):
-        """Draw the crosshair on the canvas"""
+        """Draw the advanced crosshair on the canvas"""
         if not self.overlay_window:
             return
             
         self.canvas.delete("all")
         
-        size = int(self.config.get('crosshair', 'size'))
-        thickness = int(self.config.get('crosshair', 'thickness'))
-        color = self.config.get('crosshair', 'color')
-        style = self.config.get('crosshair', 'style')
-        
         center_x = 50  # Center of 100x100 window
         center_y = 50
         
-        if style == 'cross':
-            # Draw cross
-            self.canvas.create_line(
-                center_x - size//2, center_y, center_x + size//2, center_y,
-                fill=color, width=thickness
-            )
-            self.canvas.create_line(
-                center_x, center_y - size//2, center_x, center_y + size//2,
-                fill=color, width=thickness
-            )
-        elif style == 'dot':
-            # Draw dot
+        # Draw outer lines first (so they appear behind inner lines)
+        if self.config.getboolean('crosshair', 'outer_enabled'):
+            outer_length = int(self.config.get('crosshair', 'outer_length'))
+            outer_thickness = int(self.config.get('crosshair', 'outer_thickness'))
+            outer_offset = int(self.config.get('crosshair', 'outer_offset'))
+            outer_color = self.config.get('crosshair', 'outer_color')
+            
+            # Outer line positions (start from offset distance from center)
+            outer_start = outer_offset
+            outer_end = outer_offset + outer_length
+            
+            # Draw outer outlines first if enabled
+            if self.config.getboolean('crosshair', 'outer_outline_enabled'):
+                outline_thickness = int(self.config.get('crosshair', 'outer_outline_thickness'))
+                outline_color = self.config.get('crosshair', 'outer_outline_color')
+                total_thickness = outer_thickness + (outline_thickness * 2)
+                
+                # Horizontal outer outlines
+                self.canvas.create_line(center_x + outer_start, center_y, center_x + outer_end, center_y, fill=outline_color, width=total_thickness)
+                self.canvas.create_line(center_x - outer_start, center_y, center_x - outer_end, center_y, fill=outline_color, width=total_thickness)
+                # Vertical outer outlines
+                self.canvas.create_line(center_x, center_y + outer_start, center_x, center_y + outer_end, fill=outline_color, width=total_thickness)
+                self.canvas.create_line(center_x, center_y - outer_start, center_x, center_y - outer_end, fill=outline_color, width=total_thickness)
+            
+            # Draw outer lines
+            # Horizontal outer lines
+            self.canvas.create_line(center_x + outer_start, center_y, center_x + outer_end, center_y, fill=outer_color, width=outer_thickness)
+            self.canvas.create_line(center_x - outer_start, center_y, center_x - outer_end, center_y, fill=outer_color, width=outer_thickness)
+            # Vertical outer lines
+            self.canvas.create_line(center_x, center_y + outer_start, center_x, center_y + outer_end, fill=outer_color, width=outer_thickness)
+            self.canvas.create_line(center_x, center_y - outer_start, center_x, center_y - outer_end, fill=outer_color, width=outer_thickness)
+        
+        # Draw inner lines
+        if self.config.getboolean('crosshair', 'inner_enabled'):
+            inner_length = int(self.config.get('crosshair', 'inner_length'))
+            inner_thickness = int(self.config.get('crosshair', 'inner_thickness'))
+            inner_offset = int(self.config.get('crosshair', 'inner_offset'))
+            inner_color = self.config.get('crosshair', 'inner_color')
+            
+            # Inner line positions (start from offset distance from center)
+            inner_start = inner_offset
+            inner_end = inner_offset + inner_length
+            
+            # Draw inner outlines first if enabled
+            if self.config.getboolean('crosshair', 'inner_outline_enabled'):
+                outline_thickness = int(self.config.get('crosshair', 'inner_outline_thickness'))
+                outline_color = self.config.get('crosshair', 'inner_outline_color')
+                total_thickness = inner_thickness + (outline_thickness * 2)
+                
+                # Horizontal inner outlines
+                self.canvas.create_line(center_x + inner_start, center_y, center_x + inner_end, center_y, fill=outline_color, width=total_thickness)
+                self.canvas.create_line(center_x - inner_start, center_y, center_x - inner_end, center_y, fill=outline_color, width=total_thickness)
+                # Vertical inner outlines
+                self.canvas.create_line(center_x, center_y + inner_start, center_x, center_y + inner_end, fill=outline_color, width=total_thickness)
+                self.canvas.create_line(center_x, center_y - inner_start, center_x, center_y - inner_end, fill=outline_color, width=total_thickness)
+            
+            # Draw inner lines
+            # Horizontal inner lines
+            self.canvas.create_line(center_x + inner_start, center_y, center_x + inner_end, center_y, fill=inner_color, width=inner_thickness)
+            self.canvas.create_line(center_x - inner_start, center_y, center_x - inner_end, center_y, fill=inner_color, width=inner_thickness)
+            # Vertical inner lines
+            self.canvas.create_line(center_x, center_y + inner_start, center_x, center_y + inner_end, fill=inner_color, width=inner_thickness)
+            self.canvas.create_line(center_x, center_y - inner_start, center_x, center_y - inner_end, fill=inner_color, width=inner_thickness)
+        
+        # Draw center dot last (so it appears on top)
+        if self.config.getboolean('crosshair', 'center_dot_enabled'):
+            dot_size = int(self.config.get('crosshair', 'center_dot_size'))
+            dot_color = self.config.get('crosshair', 'center_dot_color')
+            
+            # Draw center dot outline first if enabled
+            if self.config.getboolean('crosshair', 'center_dot_outline_enabled'):
+                outline_thickness = int(self.config.get('crosshair', 'center_dot_outline_thickness'))
+                outline_color = self.config.get('crosshair', 'center_dot_outline_color')
+                total_size = dot_size + outline_thickness
+                
+                self.canvas.create_oval(
+                    center_x - total_size, center_y - total_size,
+                    center_x + total_size, center_y + total_size,
+                    fill=outline_color, outline=outline_color
+                )
+            
+            # Draw center dot
             self.canvas.create_oval(
-                center_x - size//4, center_y - size//4,
-                center_x + size//4, center_y + size//4,
-                fill=color, outline=color
-            )
-        elif style == 'circle':
-            # Draw circle
-            self.canvas.create_oval(
-                center_x - size//2, center_y - size//2,
-                center_x + size//2, center_y + size//2,
-                fill='', outline=color, width=thickness
+                center_x - dot_size, center_y - dot_size,
+                center_x + dot_size, center_y + dot_size,
+                fill=dot_color, outline=dot_color
             )
     
     def toggle_visibility(self):
@@ -148,130 +231,261 @@ class CrosshairOverlay:
             return
             
         self.root = tk.Tk()
-        self.root.title("Crosshair Settings")
-        self.root.geometry("400x300")
+        self.root.title("Advanced Crosshair Settings")
+        self.root.geometry("600x800")
         
         # Create and show crosshair by default
         self.create_overlay()
         self.is_visible = True
         
-        # Create settings frame
-        frame = ttk.Frame(self.root, padding="10")
-        frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        # Create scrollable frame
+        canvas = tk.Canvas(self.root)
+        scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
         
-        # Initialize all variables first
-        size_var = tk.IntVar(value=int(self.config.get('crosshair', 'size')))
-        thickness_var = tk.IntVar(value=int(self.config.get('crosshair', 'thickness')))
-        r, g, b = self.parse_hex_color(self.config.get('crosshair', 'color'))
-        red_var = tk.IntVar(value=r)
-        green_var = tk.IntVar(value=g)
-        blue_var = tk.IntVar(value=b)
-        style_var = tk.StringVar(value=self.config.get('crosshair', 'style'))
-        opacity_var = tk.IntVar(value=int(float(self.config.get('crosshair', 'opacity')) * 100))
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        frame = ttk.Frame(scrollable_frame, padding="10")
+        frame.pack(fill="both", expand=True)
+        
+        # Initialize all variables
+        self.vars = {}
         
         # Define update function
         def update_settings(*args):
-            self.apply_settings(
-                str(size_var.get()), 
-                str(thickness_var.get()), 
-                f"#{red_var.get():02x}{green_var.get():02x}{blue_var.get():02x}", 
-                style_var.get(), 
-                str(opacity_var.get()/100)
-            )
+            # Update all config values from variables
+            for key, var in self.vars.items():
+                if isinstance(var, tk.BooleanVar):
+                    self.config.set('crosshair', key, str(var.get()))
+                elif key.endswith('_color'):
+                    # Handle RGB color variables
+                    if key.endswith('_color'):
+                        base_key = key[:-6]  # Remove '_color'
+                        if f"{base_key}_red" in self.vars:
+                            r = self.vars[f"{base_key}_red"].get()
+                            g = self.vars[f"{base_key}_green"].get()
+                            b = self.vars[f"{base_key}_blue"].get()
+                            self.config.set('crosshair', key, f"#{r:02x}{g:02x}{b:02x}")
+                else:
+                    self.config.set('crosshair', key, str(var.get()))
+            
+            self.save_config()
+            if self.overlay_window:
+                self.overlay_window.attributes('-alpha', float(self.config.get('crosshair', 'opacity')))
+                self.draw_crosshair()
         
-        # Size setting
-        ttk.Label(frame, text="Size:").grid(row=0, column=0, sticky=tk.W, pady=5)
-        size_slider = ttk.Scale(frame, from_=5, to=100, variable=size_var, orient=tk.HORIZONTAL, length=200)
-        size_slider.grid(row=0, column=1, sticky=tk.W, pady=5, padx=(10, 0))
-        size_entry = ttk.Entry(frame, textvariable=size_var, width=5)
-        size_entry.grid(row=0, column=2, sticky=tk.W, pady=5, padx=(5, 0))
-        size_var.trace_add('write', update_settings)
+        row = 0
         
-        # Thickness setting
-        ttk.Label(frame, text="Thickness:").grid(row=1, column=0, sticky=tk.W, pady=5)
-        thickness_slider = ttk.Scale(frame, from_=1, to=20, variable=thickness_var, orient=tk.HORIZONTAL, length=200)
-        thickness_slider.grid(row=1, column=1, sticky=tk.W, pady=5, padx=(10, 0))
-        thickness_entry = ttk.Entry(frame, textvariable=thickness_var, width=5)
-        thickness_entry.grid(row=1, column=2, sticky=tk.W, pady=5, padx=(5, 0))
-        thickness_var.trace_add('write', update_settings)
+        # Inner Lines Section
+        ttk.Label(frame, text="INNER LINES", font=("Arial", 12, "bold")).grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=(10, 5))
+        row += 1
         
-        # RGB Color settings
-        ttk.Label(frame, text="Red:").grid(row=2, column=0, sticky=tk.W, pady=5)
-        red_slider = ttk.Scale(frame, from_=0, to=255, variable=red_var, orient=tk.HORIZONTAL, length=200)
-        red_slider.grid(row=2, column=1, sticky=tk.W, pady=5, padx=(10, 0))
-        red_entry = ttk.Entry(frame, textvariable=red_var, width=5)
-        red_entry.grid(row=2, column=2, sticky=tk.W, pady=5, padx=(5, 0))
-        red_var.trace_add('write', update_settings)
+        # Inner enabled
+        self.vars['inner_enabled'] = tk.BooleanVar(value=self.config.getboolean('crosshair', 'inner_enabled'))
+        ttk.Checkbutton(frame, text="Enable Inner Lines", variable=self.vars['inner_enabled']).grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=2)
+        self.vars['inner_enabled'].trace_add('write', update_settings)
+        row += 1
         
-        ttk.Label(frame, text="Green:").grid(row=3, column=0, sticky=tk.W, pady=5)
-        green_slider = ttk.Scale(frame, from_=0, to=255, variable=green_var, orient=tk.HORIZONTAL, length=200)
-        green_slider.grid(row=3, column=1, sticky=tk.W, pady=5, padx=(10, 0))
-        green_entry = ttk.Entry(frame, textvariable=green_var, width=5)
-        green_entry.grid(row=3, column=2, sticky=tk.W, pady=5, padx=(5, 0))
-        green_var.trace_add('write', update_settings)
+        # Inner length
+        ttk.Label(frame, text="Length:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        self.vars['inner_length'] = tk.IntVar(value=int(self.config.get('crosshair', 'inner_length')))
+        ttk.Scale(frame, from_=1, to=50, variable=self.vars['inner_length'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['inner_length'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['inner_length'].trace_add('write', update_settings)
+        row += 1
         
-        ttk.Label(frame, text="Blue:").grid(row=4, column=0, sticky=tk.W, pady=5)
-        blue_slider = ttk.Scale(frame, from_=0, to=255, variable=blue_var, orient=tk.HORIZONTAL, length=200)
-        blue_slider.grid(row=4, column=1, sticky=tk.W, pady=5, padx=(10, 0))
-        blue_entry = ttk.Entry(frame, textvariable=blue_var, width=5)
-        blue_entry.grid(row=4, column=2, sticky=tk.W, pady=5, padx=(5, 0))
-        blue_var.trace_add('write', update_settings)
+        # Inner thickness
+        ttk.Label(frame, text="Thickness:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        self.vars['inner_thickness'] = tk.IntVar(value=int(self.config.get('crosshair', 'inner_thickness')))
+        ttk.Scale(frame, from_=1, to=10, variable=self.vars['inner_thickness'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['inner_thickness'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['inner_thickness'].trace_add('write', update_settings)
+        row += 1
         
-        # Style setting
-        ttk.Label(frame, text="Style:").grid(row=5, column=0, sticky=tk.W, pady=5)
-        style_combo = ttk.Combobox(frame, textvariable=style_var, values=['cross', 'dot', 'circle'])
-        style_combo.grid(row=5, column=1, sticky=tk.W, pady=5, padx=(10, 0))
-        style_var.trace_add('write', update_settings)
+        # Inner offset
+        ttk.Label(frame, text="Offset:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        self.vars['inner_offset'] = tk.IntVar(value=int(self.config.get('crosshair', 'inner_offset')))
+        ttk.Scale(frame, from_=0, to=20, variable=self.vars['inner_offset'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['inner_offset'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['inner_offset'].trace_add('write', update_settings)
+        row += 1
         
-        # Opacity setting
-        ttk.Label(frame, text="Opacity:").grid(row=6, column=0, sticky=tk.W, pady=5)
-        opacity_slider = ttk.Scale(frame, from_=10, to=100, variable=opacity_var, orient=tk.HORIZONTAL, length=200)
-        opacity_slider.grid(row=6, column=1, sticky=tk.W, pady=5, padx=(10, 0))
-        opacity_entry = ttk.Entry(frame, textvariable=opacity_var, width=5)
-        opacity_entry.grid(row=6, column=2, sticky=tk.W, pady=5, padx=(5, 0))
-        opacity_var.trace_add('write', update_settings)
+        # Inner color RGB
+        r, g, b = self.parse_hex_color(self.config.get('crosshair', 'inner_color'))
+        self.vars['inner_red'] = tk.IntVar(value=r)
+        self.vars['inner_green'] = tk.IntVar(value=g)
+        self.vars['inner_blue'] = tk.IntVar(value=b)
+        
+        ttk.Label(frame, text="Red:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Scale(frame, from_=0, to=255, variable=self.vars['inner_red'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['inner_red'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['inner_red'].trace_add('write', lambda *args: self.update_color_and_settings('inner_color', update_settings))
+        row += 1
+        
+        ttk.Label(frame, text="Green:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Scale(frame, from_=0, to=255, variable=self.vars['inner_green'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['inner_green'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['inner_green'].trace_add('write', lambda *args: self.update_color_and_settings('inner_color', update_settings))
+        row += 1
+        
+        ttk.Label(frame, text="Blue:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Scale(frame, from_=0, to=255, variable=self.vars['inner_blue'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['inner_blue'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['inner_blue'].trace_add('write', lambda *args: self.update_color_and_settings('inner_color', update_settings))
+        row += 1
+        
+        # Inner outline
+        self.vars['inner_outline_enabled'] = tk.BooleanVar(value=self.config.getboolean('crosshair', 'inner_outline_enabled'))
+        ttk.Checkbutton(frame, text="Enable Outline", variable=self.vars['inner_outline_enabled']).grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=2)
+        self.vars['inner_outline_enabled'].trace_add('write', update_settings)
+        row += 1
+        
+        # Outer Lines Section
+        ttk.Label(frame, text="OUTER LINES", font=("Arial", 12, "bold")).grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=(15, 5))
+        row += 1
+        
+        # Outer enabled
+        self.vars['outer_enabled'] = tk.BooleanVar(value=self.config.getboolean('crosshair', 'outer_enabled'))
+        ttk.Checkbutton(frame, text="Enable Outer Lines", variable=self.vars['outer_enabled']).grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=2)
+        self.vars['outer_enabled'].trace_add('write', update_settings)
+        row += 1
+        
+        # Outer length
+        ttk.Label(frame, text="Length:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        self.vars['outer_length'] = tk.IntVar(value=int(self.config.get('crosshair', 'outer_length')))
+        ttk.Scale(frame, from_=1, to=50, variable=self.vars['outer_length'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['outer_length'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['outer_length'].trace_add('write', update_settings)
+        row += 1
+        
+        # Outer thickness
+        ttk.Label(frame, text="Thickness:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        self.vars['outer_thickness'] = tk.IntVar(value=int(self.config.get('crosshair', 'outer_thickness')))
+        ttk.Scale(frame, from_=1, to=10, variable=self.vars['outer_thickness'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['outer_thickness'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['outer_thickness'].trace_add('write', update_settings)
+        row += 1
+        
+        # Outer offset
+        ttk.Label(frame, text="Offset:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        self.vars['outer_offset'] = tk.IntVar(value=int(self.config.get('crosshair', 'outer_offset')))
+        ttk.Scale(frame, from_=0, to=30, variable=self.vars['outer_offset'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['outer_offset'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['outer_offset'].trace_add('write', update_settings)
+        row += 1
+        
+        # Outer color RGB
+        r, g, b = self.parse_hex_color(self.config.get('crosshair', 'outer_color'))
+        self.vars['outer_red'] = tk.IntVar(value=r)
+        self.vars['outer_green'] = tk.IntVar(value=g)
+        self.vars['outer_blue'] = tk.IntVar(value=b)
+        
+        ttk.Label(frame, text="Red:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Scale(frame, from_=0, to=255, variable=self.vars['outer_red'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['outer_red'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['outer_red'].trace_add('write', lambda *args: self.update_color_and_settings('outer_color', update_settings))
+        row += 1
+        
+        ttk.Label(frame, text="Green:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Scale(frame, from_=0, to=255, variable=self.vars['outer_green'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['outer_green'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['outer_green'].trace_add('write', lambda *args: self.update_color_and_settings('outer_color', update_settings))
+        row += 1
+        
+        ttk.Label(frame, text="Blue:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Scale(frame, from_=0, to=255, variable=self.vars['outer_blue'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['outer_blue'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['outer_blue'].trace_add('write', lambda *args: self.update_color_and_settings('outer_color', update_settings))
+        row += 1
+        
+        # Center Dot Section
+        ttk.Label(frame, text="CENTER DOT", font=("Arial", 12, "bold")).grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=(15, 5))
+        row += 1
+        
+        # Center dot enabled
+        self.vars['center_dot_enabled'] = tk.BooleanVar(value=self.config.getboolean('crosshair', 'center_dot_enabled'))
+        ttk.Checkbutton(frame, text="Enable Center Dot", variable=self.vars['center_dot_enabled']).grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=2)
+        self.vars['center_dot_enabled'].trace_add('write', update_settings)
+        row += 1
+        
+        # Center dot size
+        ttk.Label(frame, text="Size:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        self.vars['center_dot_size'] = tk.IntVar(value=int(self.config.get('crosshair', 'center_dot_size')))
+        ttk.Scale(frame, from_=1, to=10, variable=self.vars['center_dot_size'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['center_dot_size'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['center_dot_size'].trace_add('write', update_settings)
+        row += 1
+        
+        # General Section
+        ttk.Label(frame, text="GENERAL", font=("Arial", 12, "bold")).grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=(15, 5))
+        row += 1
+        
+        # Opacity
+        ttk.Label(frame, text="Opacity:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        self.vars['opacity'] = tk.IntVar(value=int(float(self.config.get('crosshair', 'opacity')) * 100))
+        ttk.Scale(frame, from_=10, to=100, variable=self.vars['opacity'], orient=tk.HORIZONTAL, length=200).grid(row=row, column=1, sticky=tk.W, padx=(10, 0))
+        ttk.Entry(frame, textvariable=self.vars['opacity'], width=5).grid(row=row, column=2, sticky=tk.W, padx=(5, 0))
+        self.vars['opacity'].trace_add('write', lambda *args: self.update_opacity_and_settings(update_settings))
+        row += 1
         
         # Apply initial settings to draw crosshair
         update_settings()
         
         # Buttons
         button_frame = ttk.Frame(frame)
-        button_frame.grid(row=7, column=0, columnspan=3, pady=20)
+        button_frame.grid(row=row, column=0, columnspan=3, pady=20)
+        row += 1
         
         ttk.Button(button_frame, text="Toggle Crosshair", command=self.toggle_visibility).pack(side=tk.LEFT, padx=5)
-        
         ttk.Button(button_frame, text="Exit", command=self.quit_app).pack(side=tk.LEFT, padx=5)
         
         # Instructions
         instructions = """
-Controls:
-- Crosshair is ON by default when app starts
-- Use sliders or type exact values
-- Settings apply instantly as you adjust
-- RGB sliders: 0-255 for each color
+Advanced Crosshair Controls:
+• Inner/Outer Lines: Independent control with length, thickness, offset
+• Outlines: Black borders around lines for visibility
+• Center Dot: Optional dot at crosshair center
+• RGB Colors: 0-255 values for precise color control
+• Settings apply instantly as you adjust
         """
-        ttk.Label(frame, text=instructions, justify=tk.LEFT).grid(row=8, column=0, columnspan=3, pady=10)
+        ttk.Label(frame, text=instructions, justify=tk.LEFT).grid(row=row, column=0, columnspan=3, pady=10)
         
         self.root.protocol("WM_DELETE_WINDOW", self.quit_app)
         self.root.mainloop()
     
-    def apply_settings(self, size, thickness, color, style, opacity):
-        """Apply new settings"""
+    def update_color_and_settings(self, color_key, update_callback):
+        """Update color from RGB values and trigger settings update"""
         try:
-            self.config.set('crosshair', 'size', size)
-            self.config.set('crosshair', 'thickness', thickness)
-            self.config.set('crosshair', 'color', color)
-            self.config.set('crosshair', 'style', style)
-            self.config.set('crosshair', 'opacity', opacity)
-            
+            base_key = color_key[:-6]  # Remove '_color'
+            r = self.vars[f"{base_key}_red"].get()
+            g = self.vars[f"{base_key}_green"].get()
+            b = self.vars[f"{base_key}_blue"].get()
+            self.config.set('crosshair', color_key, f"#{r:02x}{g:02x}{b:02x}")
             self.save_config()
-            
             if self.overlay_window:
-                self.overlay_window.attributes('-alpha', float(opacity))
                 self.draw_crosshair()
-                
-        except Exception as e:
-            # Silently handle errors - just don't apply invalid settings
+        except:
+            pass
+    
+    def update_opacity_and_settings(self, update_callback):
+        """Update opacity and trigger settings update"""
+        try:
+            opacity_val = self.vars['opacity'].get() / 100
+            self.config.set('crosshair', 'opacity', str(opacity_val))
+            self.save_config()
+            if self.overlay_window:
+                self.overlay_window.attributes('-alpha', opacity_val)
+                self.draw_crosshair()
+        except:
             pass
     
     def quit_app(self):
